@@ -117,6 +117,11 @@ module.exports = {
             ]
           }
         }
+      },
+      {
+        // Note: when using the handlebars-loader, you need to also install Handlebars as a prod dependency
+        test: /\.hbs$/,
+        use: ['handlebars-loader']
       }
     ]
   },
@@ -142,9 +147,18 @@ module.exports = {
       title: 'Webpack 5: The Complete Guide for Beginners',
       // use the filename option to specify a custom path and/or output file
       // filename: 'templates/custom-filename.html',
+
+      // specify a template, in this case we're using handlebars
+      template: 'src/index.hbs',
+
+      // if the description meta tag is in your template, set the option at the same level
+      // as the template rather than in the meta section
+      description: 'A basic webpack template for testing various build options',
+
+      // use meta object to generate meta tags
       meta: {
-        description:
-          'A basic webpack template for testing various build options'
+        // description: 'A basic webpack template for testing various build options'
+        robots: 'noindex, nofollow'
       }
     })
   ]
