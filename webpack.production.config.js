@@ -1,18 +1,23 @@
 // must use common.js modules in webpack config
 
-// NOTE: see https://github.com/webpack/webpack-dev-server/issues/2029 for incompatibility between latest webpack-cli
-// and webpack-dev-server as of 11/18/20
-
 // must use path.resolve for absolute paths in outputs. Path is included with node
 const path = require('path');
 
 // Terser is the preferred method for minimizing JS now, and is included OOTB with Webpack 5+
-const TerserPlugin = require('terser-webpack-plugin');
 
-// MiniCssExtractPlugin for creating separate CSS bundle for prod
+// NOTE: you don't need to import it or add it to plugins in your production config because it runs
+// by default. Also don't really need it in dev config because we don't need our code minified in dev.
+// Just leaving here for reference because it is what webpack uses
+
+// HOWEVER: if you have other optimization minimize settings, like for the CssMinimizerPlugin, it looks like
+// that overrides the default, so Terser doesn't run, so you DO need to add it manually.
+
+// const TerserPlugin = require('terser-webpack-plugin');
+
+// MiniCssExtractPlugin for creating separate CSS bundle for prod (not needed in dev)
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-// CssMinimizerPlugin for minimizing CSS
+// CssMinimizerPlugin for minimizing CSS. Only necessary in production mode
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 // CleanWebpackPlugin to clean the output directory (note this is a named export)
@@ -22,16 +27,25 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  // webpack-dev-server options, if you're using it
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    port: 9000
+  // for a SPA with only one entry point, entry can be a simple string
+  // entry: './src/index.js',
+
+  // for multi-page app, entry is an object
+  entry: {
+    index: './src/index.js',
+    imagePage: './src/imagePage.js'
   },
-  entry: './src/index.js',
   output: {
     // adding [contenthash] adds a random hash that updates whenever
-    // there are changes to support browser caching
-    filename: 'bundle.[contenthash].js',
+    // there are changes to support browser caching. Only need to do this
+    // in the production mode config
+
+    // for SPA, output file can be a single bundle
+    // filename: 'bundle.[contenthash].js',
+
+    // for multi-page app, replace hardcoded "bundle" with [name] token to match the entry file
+    filename: '[name].[contenthash].js',
+
     path: path.resolve(__dirname, './dist'),
     // NOTE: without this publicPath, file-loader resolves using the file system
     // path instead of relative to the project root. This can be an absolute path
@@ -42,10 +56,33 @@ module.exports = {
     // so make this empty otherwise 'dist/' will be added to the paths in the generated html
     publicPath: ''
   },
-  mode: 'none',
+  // mode options:
+  // 'none' - no optimization settings
+  // 'development' - sets process.env.NODE_ENV to 'development'
+  // 'production' - sets process.env.NODE_ENV to 'production'
+  mode: 'production',
   optimization: {
-    minimize: true,
-    minimizer: [new TerserPlugin(), new CssMinimizerPlugin()]
+    // to split up common dependencies into their own bundles to prevent them being
+    // included in every generated JS file. Webpack seems to know to add any vendor chunks
+    // only where needed.
+
+    // NOTE: weback only breaks out common files if they're over a certain
+    // size (30kb?) so for example, including Lodash results in a separate asset, but including
+    // React does NOT by default. To change this, use the minSize option (in bytes)
+
+    // NOTE: the verbose naming (with the delimiter) only seems to affect dev mode. In production
+    // the generated filename is a random number
+    splitChunks: {
+      chunks: 'all',
+      minSize: 5000,
+      automaticNameDelimiter: '_'
+    }
+    // minimize: true,
+    // minimizer: [
+    //   // when specifiying other optimizations, you need to still add Terser
+    //   new TerserPlugin(),
+    //   new CssMinimizerPlugin()
+    // ]
   },
   module: {
     // NOTE: install all loaders as dev dependencies
@@ -127,12 +164,23 @@ module.exports = {
   },
   plugins: [
     // NOTE: install all plugins as dev dependencies
-    // Terser can be added here, but I added it above in the optimazation settings per the Webpack docs
-    //new TerserPlugin(),
+
+    // Terser can be added here or above in the optimization settings per the Webpack docs
+    // new TerserPlugin(),
+
     // MiniCssExtractPlugin extracts files into a separate file rather than bundling with JS
     new MiniCssExtractPlugin({
-      filename: 'styles.[contenthash].css'
+      // for SPA, output file can be a single bundle
+      // filename: 'styles.[contenthash].css'
+
+      // for multi-page app, replace hardcoded "styles" with [name] token to match the entry file
+      filename: '[name].[contenthash].css'
     }),
+
+    // CssMinimizerPlugin can be added here or in optimization settings. If you add it in the
+    // optimmization minimize section you need to add Terser, too, or it won't run
+    new CssMinimizerPlugin(),
+
     // CleanWebpackPlugin to clean the output folder before a build, removing old hashed files, etc.
     new CleanWebpackPlugin({
       // use this option if you need to clean any directories outside the main output (dist) folder
@@ -143,13 +191,19 @@ module.exports = {
         path.join(process.cwd(), 'build/**/*')
       ]
     }),
-    new HtmlWebpackPlugin({
-      title: 'Webpack 5: The Complete Guide for Beginners',
-      // use the filename option to specify a custom path and/or output file
-      // filename: 'templates/custom-filename.html',
 
-      // specify a template, in this case we're using handlebars
-      template: 'src/index.hbs',
+    // HtmlWebpackPlugin to auto generate html files
+    new HtmlWebpackPlugin({
+      // use the filename option to specify a custom path and/or output file, or when you
+      // have a multi-page app and need to differentiate entry points
+      // filename: 'templates/custom-filename.html',
+      filename: 'index.html',
+
+      // add chunks array if you need to specify which bundles should be included.
+      // NOTE: the chunk names come from the keys you specified in the entry points array
+      chunks: ['index'],
+
+      title: 'Webpack 5: The Complete Guide for Beginners',
 
       // if the description meta tag is in your template, set the option at the same level
       // as the template rather than in the meta section
@@ -159,7 +213,19 @@ module.exports = {
       meta: {
         // description: 'A basic webpack template for testing various build options'
         robots: 'noindex, nofollow'
-      }
+      },
+
+      // specify a template, in this case we're using handlebars
+      template: 'src/page-template.hbs'
+    }),
+
+    // for multi-page apps, add a new instance for each page
+    new HtmlWebpackPlugin({
+      filename: 'imagePage.html',
+      chunks: ['imagePage'],
+      title: 'Webpack 5: The Complete Guide for Beginners | Image Page',
+      description: 'A second page to test a multi-page application',
+      template: 'src/page-template.hbs'
     })
   ]
 };
