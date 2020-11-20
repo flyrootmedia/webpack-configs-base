@@ -3,11 +3,14 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './src/index.js',
+  entry: {
+    index: './src/index.js',
+    imagePage: './src/imagePage.js'
+  },
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, './dist'),
-    publicPath: ''
+    publicPath: '/static/'
   },
   mode: 'development',
   devServer: {
@@ -49,8 +52,17 @@ module.exports = {
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
+      filename: 'index.html',
+      chunks: ['index'],
       title: 'Hello world',
       description: 'Hello world',
+      template: 'src/page-template.hbs'
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'imagePage.html',
+      chunks: ['imagePage'],
+      title: 'Image Page',
+      description: 'Image Page',
       template: 'src/page-template.hbs'
     })
   ]

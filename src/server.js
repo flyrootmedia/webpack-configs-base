@@ -9,7 +9,14 @@ app.get('/', (req, res) => {
   // get the index.html file and send it to the browser
   const pathToHtmleFile = path.resolve(__dirname, '../dist/index.html');
   const contentFromHtmlFile = fs.readFileSync(pathToHtmleFile, 'utf-8');
+  res.send(contentFromHtmlFile);
+});
 
+// image page route
+app.get('/imagePage/', (req, res) => {
+  // get the index.html file and send it to the browser
+  const pathToHtmleFile = path.resolve(__dirname, '../dist/imagePage.html');
+  const contentFromHtmlFile = fs.readFileSync(pathToHtmleFile, 'utf-8');
   res.send(contentFromHtmlFile);
 });
 
