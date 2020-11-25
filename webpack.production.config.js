@@ -8,6 +8,9 @@ module.exports = {
   output: {
     filename: 'bundle.[contenthash].js',
     path: path.resolve(__dirname, './dist'),
+    // only use this /static/ path for the prod config because Express needs it to
+    // resolve static assets. If you add it to the dev config, webpack dev server won't know
+    // about the path and won't be able to find the bundles.
     publicPath: '/static/'
   },
   mode: 'production',
