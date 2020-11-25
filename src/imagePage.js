@@ -1,6 +1,6 @@
 import Heading from './components/Heading/Heading';
 import AddImage from './components/AddImage/AddImage';
-import React from 'react';
+// import React from 'react';
 // import _ from 'lodash';
 
 const heading = new Heading();

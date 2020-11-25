@@ -99,11 +99,22 @@ module.exports = {
         options: {
           // use this template to keep the same path/filename as the src directory
           // name: '[path][name].[ext]',
-          outputPath: 'images',
+          outputPath: 'images/',
           // I added this to resolve the images path properly in an html file in a subdirectory. This works fine with a web
           // server, but not if you're just viewing your file through the file system. May need to look into the correct
           // way to configure this
           publicPath: '/images/'
+        }
+      },
+      {
+        // use file-loader for font files
+        test: /\.(woff|woff2|ttf)$/,
+        loader: 'file-loader',
+        options: {
+          // retain the name and extension in the dist folder during builds
+          name: '[name].[ext]',
+          // place the files in a fonts directory
+          outputPath: 'fonts/'
         }
       },
       {

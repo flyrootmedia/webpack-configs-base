@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.production.config.js",
     "dev": "webpack serve --config webpack.dev.config.js --hot",
-    "start:dev": "webpack-dev-server"
+    "start:dev": "webpack-dev-server",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "Erik Ralston",
@@ -16,10 +17,16 @@
     "@babel/core": "^7.12.3",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/preset-env": "^7.12.1",
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-brands-svg-icons": "^5.15.1",
+    "@fortawesome/free-regular-svg-icons": "^5.15.1",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "babel-eslint": "^10.1.0",
     "babel-loader": "^8.2.1",
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^5.0.1",
     "css-minimizer-webpack-plugin": "^1.1.5",
+    "eslint": "^7.14.0",
     "file-loader": "^6.2.0",
     "handlebars-loader": "^1.7.1",
     "html-webpack-plugin": "^4.5.0",
@@ -33,7 +40,9 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "express": "^4.17.1",
     "handlebars": "^4.7.6",
+    "jquery": "^3.5.1",
     "lodash": "^4.17.20",
     "react": "^17.0.1"
   }
