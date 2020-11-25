@@ -9,7 +9,8 @@ module.exports = {
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, './dist'),
-    publicPath: ''
+    // be sure to set the publicPath when exposing components with Module Federation
+    publicPath: 'http://localhost:9002/'
   },
   mode: 'development',
   devServer: {
@@ -57,11 +58,11 @@ module.exports = {
     }),
     new ModuleFederationPlugin({
       name: 'ImageApp',
-      // in this app, we aren't exposing any modules, but rather consuming them from the
-      // HelloWorldApp, so we need to configure the location of 'remotes' we want to pull
-      // modules from
-      remotes: {
-        HelloWorldApp: 'HelloWorldApp@http://localhost:9001/remoteEntry.js'
+      filename: 'remoteEntry.js',
+      // Note we're now exposing the page components for Micro Frontend architecture
+      // and no longer importing anything from helloWorld
+      exposes: {
+        './ImagePage': './src/components/ImagePage/ImagePage.js'
       }
     })
   ]

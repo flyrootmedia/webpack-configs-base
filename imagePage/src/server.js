@@ -12,10 +12,10 @@ app.get('/', (req, res) => {
   res.send(contentFromHtmlFile);
 });
 
-// route to serve static files
-// update the publicPath in the webpack config to '/static/' for this to work
-// without this, express doesn't know how to handle static assets.
-app.use('/static', express.static(path.resolve(__dirname, '../dist')));
+// for this application we've set the publicPath to the full localhost
+// domain so that we can share modules with Module Federation, so here
+// we're defining '/' as the location for static files
+app.use('/', express.static(path.resolve(__dirname, '../dist')));
 
 // use a unique port for each app
 app.listen(9002, () => {

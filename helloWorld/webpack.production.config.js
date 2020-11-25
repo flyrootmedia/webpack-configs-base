@@ -63,9 +63,11 @@ module.exports = {
       filename: 'remoteEntry.js',
       // specify any modules you want to expose by giving them a name and
       // the location relative to the publicPath domain (set in output above)
+      // Note we're now exposing page components for Micro Frontend architecture
       exposes: {
         './HelloWorldButton':
-          './src/components/HelloWorldButton/HelloWorldButton.js'
+          './src/components/HelloWorldButton/HelloWorldButton.js',
+        './HelloWorldPage': './src/components/HelloWorldPage/HelloWorldPage.js'
       }
     })
   ]

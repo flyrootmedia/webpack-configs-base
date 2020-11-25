@@ -6,12 +6,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
 
 module.exports = {
-  entry: './src/imagePage.js',
+  entry: './src/dashboard.js',
   output: {
     filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, './dist'),
-    // be sure to set the publicPath when exposing components with Module Federation
-    publicPath: 'http://localhost:9002/'
+    publicPath: 'http://localhost:9000/'
   },
   mode: 'production',
   optimization: {
@@ -24,27 +23,19 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(png|jpg)$/,
-        use: ['file-loader']
-      },
-      {
-        test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
-      },
-      {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/env']
-            // removed plugin-proposal-class-properties because it's not used in this app
+            presets: ['@babel/env'],
+            plugins: ['@babel/plugin-proposal-class-properties']
           }
         }
       },
       {
-        test: /\.hbs$/,
-        use: ['handlebars-loader']
+        test: /\.scss$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
       }
     ]
   },
@@ -54,19 +45,15 @@ module.exports = {
     }),
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      filename: 'imagePage.html',
-      // removed chunks since there's only one bundle
-      title: 'Image Page',
-      description: 'Image Page',
-      template: 'src/page-template.hbs'
+      filename: 'dashboard.html',
+      title: 'Dashboard'
     }),
     new ModuleFederationPlugin({
-      name: 'ImageApp',
-      filename: 'remoteEntry.js',
-      // Note we're now exposing the page components for Micro Frontend architecture
-      // and no longer importing anything from helloWorld
-      exposes: {
-        './ImagePage': './src/components/ImagePage/ImagePage.js'
+      name: 'App',
+      // define all the apps we need to load modules from
+      remotes: {
+        HelloWorldApp: 'HelloWorldApp@http://localhost:9001/remoteEntry.js',
+        ImageApp: 'ImageApp@http://localhost:9002/remoteEntry.js'
       }
     })
   ]
